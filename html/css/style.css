@@ -8,7 +8,7 @@ html {
 -moz-background-clip:border;
 -moz-background-inline-policy:continuous;
 -moz-background-origin:padding;
-background:#E7E7E7 url(images/html_background.gif) repeat scroll left top;
+background:#E7E7E7 url('/images/html_background.gif') repeat scroll left top;
 }
 
 body {
@@ -21,7 +21,7 @@ body {
 -moz-background-clip:border;
 -moz-background-inline-policy:continuous;
 -moz-background-origin:padding;
-background:#E7E7E7 url(images/html_background.gif) repeat scroll left top;
+background:#E7E7E7 url('/images/html_background.gif') repeat scroll left top;
 }
 
 h1, h2, h3, h4, h5 {
