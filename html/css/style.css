@@ -79,6 +79,11 @@ a:active {
         cursor: pointer;
 }
 
+a.tab {
+	border-bottom: none;
+}
+
+
 p {
 		margin: 10px 0;
 }
