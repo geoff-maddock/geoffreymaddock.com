@@ -83,6 +83,9 @@ a.tab {
 	border-bottom: none;
 }
 
+a.border-none {
+	border: none;
+}
 
 p {
 		margin: 10px 0;
