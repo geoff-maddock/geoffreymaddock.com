@@ -1,0 +1,212 @@
+{
+  "basics": {
+    "name": "Geoffrey Maddock",
+    "label": "Programmer, Web Developer, Promoter, DJ",
+    "picture": "http://geoffreymaddock.com/images/geoff-circle.png",
+    "email": "geoff.maddock@gmail.com",
+    "phone": "412.320.1476",
+    "website": "https://geoffreymaddock.com",
+    "summary": "Geoffrey hails from Pittsburgh, PA. He earned a degree in Computer Science from the University of Pittsburgh.  His professional career has been entirely under the roof at Expedient, a mid-sided datacenter hosting and managed services company.   After getting his feet wet in Technical Support and Network Operations,  he became a full time Programmer, focusing on improving the company infrastructure and building robust web applications for all aspects of the operation.   His work has always been ad-hoc coding and finding the best tool for the job, but his specialty has become designing and building custom, effective applications in the Symfony framework with PHP, Javascript and MySQL and Oracle backends.   In parallel, for many years he ran an online record distro, which paired with regular event promotion and both live and dj-based club nights.   He enjoys sci-fi, art, music, gaming and the outdoors.",
+    "location": {
+      "address": "50 Pasadena Street",
+      "postalCode": "PA 15211",
+      "city": "Pittsburgh",
+      "countryCode": "US",
+      "region": "Pennsylvania"
+    },
+    "profiles": [
+      {
+        "network": "Twitter",
+        "username": "cutups",
+        "url": "https://twitter.com/cutups"
+      },
+      {
+        "network": "SoundCloud",
+        "username": "cutups",
+        "url": "https://soundcloud.com/cutups"
+      },
+      {
+        "network": "Facebook",
+        "username": "geoff.maddock",
+        "url": "https://www.facebook.com/geoff.maddock"
+      },
+      {
+        "network": "LinkedIn",
+        "username": "gmaddock",
+        "url": "https://www.linkedin.com/in/gmaddock"
+      },
+      {
+        "network": "GitHub",
+        "username": "geoff-maddock",
+        "url": "https://github.com/geoff-maddock"
+      }
+    ]
+  },
+  "work": [
+    {
+      "company": "Expedient",
+      "position": "Programmer",
+      "website": "https://expedient.com",
+      "startDate": "2005-01-01",
+      "endDate": "",
+      "summary": "Expedient is a leading provider of data center and managed data network services with data centers in Pittsburgh, Baltimore, Columbus, Boston, Cleveland, Memphis and Indianapolis",
+      "highlights": [
+        "I design and develop web application software for a network, datacenter and managed-services company with a national profile.",
+        "I work with stakeholders of all skill levels to create clear, custom code solutions using PHP, Symfony, Javascript, MySQL, Oracle DB and any other applicable tools in our stack.",
+        "I have been the lead developer on a number of mission critical applications used by our Operations, Sales, Delivery and Support Teams, including Support Management Concole, QuoteTracker, PurchaseTracker, Delivery Tracker, Project Workbooks, IP Management Tool and others.",
+        "Won both solo (for Sales Commissions Tracker) and team based (for Workbooks) awards (Expys) in recognition for exceptional projects that helped support our organization."
+      ]
+    },
+    {
+      "company": "Stargate",
+      "position": "Network Operations and Technical Support Analyst",
+      "website": "http://starget.net",
+      "startDate": "1999-11-01",
+      "endDate": "2005-01-01",
+      "summary": "Stargate was a Pittsburgh based ISP and datacenter that was later bought by Expedient.   This was my first job out of college, working first in Tech Support, then Network Operations, supporting escalated corporate and residential network and software problems.",
+      "highlights": [
+        "Training of new call-center employees in troubleshooting and company procedures",
+        "Performed shift-leader duties, including assisting other techs, answering email problems, and handling escalated cases",
+        "Handled escalated support requests for a major regional ISP and Datacenter",
+        "Designed a version of the company intranet website."
+      ]
+    },
+    {
+      "company": "Wrecked Distribution",
+      "position": "Owner",
+      "website": "http://wrecked-distro.com",
+      "startDate": "2001-01-01",
+      "endDate": "",
+      "summary": "Distributor and importer of hard to find electronic and experimental music with a strong catalog of breakcore and IDM.   Mostly operates as an online retailer and reseller as well as vendor at events.",
+      "highlights": [
+        "Owner and sole-proprietor of WRECKED part-time mail-order business ",
+        "Designed, coded, and maintain website, including a user system, shopping cart, and inventory control. Written from the ground up using PHP and MySQL. Designed and implemented the database using MySQL.  ",
+        "Involved in all aspects of acquiring and distribution of experimental electronic music, from receiving purchases, to packing orders, coding, business and design issues.",
+        ""
+      ]
+    },
+    {
+      "company": "DIY Events",
+      "position": "Promoter",
+      "website": "http://events.cutupsmethod.com",
+      "startDate": "2008",
+      "endDate": "",
+      "summary": "Curate, organize, and promote events and concerts in the Pittsburgh area, both live acts, DJ nights and multimedia special events.",
+      "highlights": [
+        "PBS Promotions from 1998-2001, promoting a unique blend of electronic, experimental and other boundary pushing events in different venues including Millvale Industrial Theater, The Irish Center of Pittsburgh, and the Southside Ice Arena.",
+        "Wrecked Distro productions from 2001 through today, focusing on boundary pushing hard electronic and experimental music.   Worked with international artists at a large array of independent venues.",
+        "Resident of FUZZ from 2001 until 2014, a weekly Drum and Bass music night at the Bloomfield Bridge Tavern.   Booked hundreds of local, national and international artists, handled transportation, sound load in, web and graphic design work along with an evolving group of contributors.",
+        "Creator and resident of LAZERCRUNK from 2008 until present.   Along with Todd Keebler, curate a monthly night of fun, forward thinking dance music.   We book the guests, design promotion, handle web content, set up sound, build installation art and perform each month.",
+        "Creator and resident of ILLUSIONS, a semi regular night for new and classic dark dance music.  This is a multi-media event conceived with partners to present both live acts, djs and video performance that fall within a broad spectrum of dark or occult themed music."
+      ]
+    }
+  ],
+  "volunteer": [],
+  "education": [
+    {
+      "institution": "University of Pittsburgh",
+      "area": "Computer Science",
+      "studyType": "Bachelor",
+      "startDate": "1995-08-01",
+      "endDate": "1999-05-01",
+      "gpa": "3.2",
+      "courses": [
+        "0441 DISCRETE STRUCTURES FOR COMPUTER SCIENCE",
+        "0445 DATA STRUCTURES",
+        "1520 PROGRAMMING LANGUAGES",
+        "1652 DATA COMMUNICATION & COMPUTER NETWORKS",
+        "1571 INTRODUCTION TO ARTIFICIAL INTELLIGENCE"
+      ]
+    }
+  ],
+  "awards": [
+    {
+      "title": "EXPY",
+      "date": "2015",
+      "awarder": "Expedeint",
+      "summary": "For Extaordinary Service Provider Special Projects for the Customer Workbooks Project - creating and building a dynamic interface for collecting detailed information from customers to help us complete delivery of their new services."
+    },
+    {
+      "title": "EXPY",
+      "date": "2012",
+      "awarder": "Expedient",
+      "summary": "For the implementation of a Sales Commissions tool that turned a complex spreadsheet that relied on human input into backend web business logic that automatically derives commissions from data in our sales and delivery system."
+    }
+  ],
+  "publications": [],
+  "skills": [
+    {
+      "name": "Web Development",
+      "level": "Master",
+      "keywords": [
+        "PHP",
+        "Javascript",
+        "GIT",
+        "HTML",
+        "CSS"
+      ]
+    },
+    {
+      "name": "Database Management Systems",
+      "level": "Master",
+      "keywords": [
+        "MySQL",
+        "Oracle"
+      ]
+    },
+    {
+      "name": "Frameworks",
+      "level": "Master",
+      "keywords": [
+        "Symfony 1.4",
+        "Laravel 5.1"
+      ]
+    },
+    {
+      "name": "Event Promotion",
+      "level": "Master",
+      "keywords": [
+        "Curation",
+        "Social Media",
+        "Flyer Design",
+        "Logistics",
+        "Audio Engineering",
+        "DJ Sets"
+      ]
+    },
+    {
+      "name": "Operating Systems",
+      "level": "Master",
+      "keywords": [
+        "Unix",
+        "Windows",
+        ""
+      ]
+    }
+  ],
+  "languages": [
+    {
+      "language": "English",
+      "fluency": "Native speaker"
+    }
+  ],
+  "interests": [
+    {
+      "name": "Music",
+      "keywords": [
+        "Electronic",
+        "Experimental"
+      ]
+    },
+    {
+      "name": "Arts",
+      "keywords": [
+        "Film",
+        "Street Art",
+        "Multimedia",
+        "Print"
+      ]
+    }
+  ],
+  "references": []
+}
