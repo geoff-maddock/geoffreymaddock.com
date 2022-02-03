@@ -61,7 +61,7 @@ a, a:link {
 a:visited {
         border-bottom: 1px solid #FF5165; 
         color: #FF5165;
-        font-weight: normal;
+        font-weight: bold;
         text-decoration: none;
         cursor: pointer;
 }
@@ -74,7 +74,7 @@ a:hover {
 a:active {
         border-bottom: 1px solid #FF5165; 
         color: #FF5165;
-        font-weight: normal;
+        font-weight: bold;
         text-decoration: none;
         cursor: pointer;
 }
