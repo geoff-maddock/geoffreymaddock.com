@@ -669,11 +669,12 @@ class CutUpsPlayer extends HTMLElement {
     };
 
     if (this._peaksData) {
-      // With peaks: fetch audio as blob so seeking works on any server
-      // (no Range request support needed). Skips the decode step since
-      // WaveSurfer renders from the pre-computed peaks.
-      const blobUrl = await this._fetchAsBlob(src);
-      opts.url = blobUrl;
+      // With peaks: use a streaming <audio> element for instant playback,
+      // then fetch the full blob in the background for reliable seeking.
+      const audio = document.createElement('audio');
+      audio.src = src;
+      audio.preload = 'auto';
+      opts.media = audio;
       opts.peaks = [this._peaksData];
       opts.duration = this._peaksDuration;
     } else {
@@ -683,8 +684,20 @@ class CutUpsPlayer extends HTMLElement {
 
     this._ws = WaveSurfer.create(opts);
 
+    // With peaks: fetch full blob in background so seeking works on servers
+    // without Range request support (e.g. python http.server)
+    if (this._peaksData) {
+      this._fetchAsBlob(src).then(blobUrl => {
+        if (!this._ws) return;
+        const currentTime = this._ws.getCurrentTime();
+        const wasPlaying = this._ws.isPlaying();
+        this._ws.getMediaElement().src = blobUrl;
+        this._ws.getMediaElement().currentTime = currentTime;
+        if (wasPlaying) this._ws.play();
+      }).catch(() => {}); // Seeking may not work on servers without Range support
+    }
+
     this._ws.on('loading', (percent) => {
-      // Only show loading events when no peaks (peaks path shows its own progress)
       if (this._peaksData) return;
       const bar = this.shadowRoot.querySelector('#shimmer-progress');
       const label = this.shadowRoot.querySelector('#loading-label');
