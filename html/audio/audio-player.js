@@ -30,7 +30,7 @@ class CutUpsPlayer extends HTMLElement {
 
   connectedCallback() {
     this._render();
-    this._loadPeaksAndShow();
+    this._peaksPromise = this._loadPeaksAndShow();
   }
 
   disconnectedCallback() {
@@ -627,6 +627,11 @@ class CutUpsPlayer extends HTMLElement {
     const loadingShimmer = this.shadowRoot.querySelector('#loading-shimmer');
     if (placeholder) placeholder.style.display = 'none';
     if (loadingShimmer) loadingShimmer.style.display = 'block';
+
+    // Wait for peaks to load (if a peaks attribute was set)
+    if (this._peaksPromise) {
+      await this._peaksPromise;
+    }
 
     await this._loadWaveSurfer();
   }
