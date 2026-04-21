@@ -1,4 +1,5 @@
 .htaccess
 html/demo/*
-html/audio/*
+html/audio/offline/*
+html/audio/mixes/*
 html/work/*
