@@ -25,7 +25,9 @@ Or use a full URL when embedding on external sites:
   src="my-mix.mp3"
   title="My Mix"
   artist="DJ Name"
-  color="#ff5500">
+  color="#ff5500"
+  thumb="cover.jpg"
+  peaks="my-mix.peaks.json">
 </cutups-player>
 ```
 
