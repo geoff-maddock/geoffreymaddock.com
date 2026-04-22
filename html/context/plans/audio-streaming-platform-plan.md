@@ -42,12 +42,14 @@ Geoff
             - I could integrate with arcane city?  Not sure
 
 
-
-
-
 Potential Solution:
-
-
+    - Use cloudflareR2 for storage and streaming of audio files, as it offers a cost-effective and scalable solution for hosting media content.
+      - Set up R2 account with cloudflare 2026.04.22
+        - account id: efb39a38ad5c29224095d417e889a83f
+        - s3 api: https://efb39a38ad5c29224095d417e889a83f.r2.cloudflarestorage.com
+        - offgrid-dev
+      - Consider how to set up the bucket structure 
+        - offgrid-dev
 
 Breaking Changes:
 
