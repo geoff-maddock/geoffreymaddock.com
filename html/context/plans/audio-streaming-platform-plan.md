@@ -27,20 +27,23 @@ Geoff
 
 - MVP for the project
     - Component code for the player and js 
+        - Finalize the design, functionality and features of the player, including play/pause, seek, volume control, and playlist navigation
     - Example JSON data for both single mixes and playlists to demonstrate the expected format and structure
     - Instructions on how to set up the self hosting and then how to embed players on other sites
+    - Build database schema to store mixes, playlists, and user information
+    - Should I store other meta data for mixes in github? Ex: path to file, soundcloud path. Tags, release date, contact info?
+    - Build backend API to manage mixes and playlists, including CRUD operations *This can be after the MVP
     - An admin interface to manage mixes, playlists, and user permissions that I will host
-        - Displays all added mixes and playlists
-        - Allows sorting and filtering based in simple criteria
         - Allows users to add, edit, and remove mixes and playlists
         - Uploading mixes stores them in my storage system and processes them as needed to play
         - Manages user permissions for accessing and modifying content
+    - Displays all added mixes and playlists
+        - Allows sorting and filtering based in simple criteria
 
     - Unknowns:
         - Should the admin interface have an API
         - How should authentication work in the MVP - perhaps no user layer, just me only with a simple password or token-based access
             - I could integrate with arcane city?  Not sure
-
 
 Potential Solution:
     - Use cloudflareR2 for storage and streaming of audio files, as it offers a cost-effective and scalable solution for hosting media content.
@@ -50,15 +53,23 @@ Potential Solution:
         - offgrid-dev
       - Consider how to set up the bucket structure 
         - offgrid-dev
-
-Breaking Changes:
-
-
+    - Use a simple JSON format to define mixes and playlists, which can be easily parsed by the frontend player component.
+    ```
+    <cutups-player
+    src="https://cdn.example.com/mix.mp3"
+    title="My Mix"
+    artist="DJ Name"
+    thumb="https://cdn.example.com/cover.jpg"
+    peaks="https://cdn.example.com/mix.peaks.json"
+    color="#ff5500"
+    tags="jungle, breakcore, hardcore">
+    </cutups-player>
+    ```
 
 Documentation:
-
+    - as each step is accepted, build usable documentation
  
 
 Automated Testing Criteria:
-
+    - always include testing
  
