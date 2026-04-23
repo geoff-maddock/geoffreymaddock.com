@@ -216,37 +216,6 @@
       display: none;
     }
 
-    /* Tag pills */
-    .tag-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 8px;
-      padding: 0 14px 12px;
-    }
-
-    .tag-pill {
-      display: inline-block;
-      background: rgba(255, 85, 0, 0.1);
-      border: 1px solid rgba(255, 85, 0, 0.2);
-      border-radius: 20px;
-      padding: 2px 10px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.03em;
-      color: var(--accent);
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s, color 0.15s;
-      text-transform: lowercase;
-      user-select: none;
-    }
-
-    .tag-pill:hover {
-      background: rgba(255, 85, 0, 0.2);
-      border-color: rgba(255, 85, 0, 0.4);
-      color: #ff7733;
-    }
-
     /* Divider */
     .divider {
       height: 1px;
@@ -429,27 +398,10 @@
           if (mix.thumb) player.setAttribute('thumb', mix.thumb);
           if (mix.peaks) player.setAttribute('peaks', mix.peaks);
           if (mix.color) player.setAttribute('color', mix.color);
+          if (mix.description) player.setAttribute('description', mix.description);
+          if (mix.tags && mix.tags.length > 0) player.setAttribute('tags', JSON.stringify(mix.tags));
 
           div.appendChild(player);
-
-          // Tag pills
-          if (mix.tags && mix.tags.length > 0) {
-            const tagRow = document.createElement('div');
-            tagRow.className = 'tag-row';
-            for (const tag of mix.tags) {
-              const pill = document.createElement('span');
-              pill.className = 'tag-pill';
-              pill.textContent = tag;
-              pill.addEventListener('click', () => {
-                const searchInput = document.getElementById('mix-search');
-                searchInput.value = tag;
-                searchInput.dispatchEvent(new Event('input'));
-              });
-              tagRow.appendChild(pill);
-            }
-            div.appendChild(tagRow);
-          }
-
           stack.appendChild(div);
         }
 
@@ -532,6 +484,16 @@
         searchInput.focus();
       });
     }
+
+    // Click a tag pill inside any player → filter by that tag
+    document.addEventListener('tagclick', (e) => {
+      const searchInput = document.getElementById('mix-search');
+      if (searchInput && e.detail && e.detail.tag) {
+        searchInput.value = e.detail.tag;
+        searchInput.dispatchEvent(new Event('input'));
+        searchInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
 
     // Global play-one-at-a-time: pause any other player when one starts
     document.addEventListener('trackplay', (e) => {
