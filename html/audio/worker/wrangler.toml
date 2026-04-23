@@ -1,0 +1,21 @@
+name = "cutups-api"
+main = "src/index.js"
+compatibility_date = "2024-12-01"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "offgrid-dev"
+
+# Uncomment after running: wrangler d1 create cutups-db
+[[d1_databases]]
+binding = "DB"
+database_name = "cutups-db"
+database_id = "c5dd67eb-71b4-4adc-96f4-04a9b3406399"
+
+[vars]
+CORS_ORIGIN = "*"
+
+# Set via: wrangler secret put ADMIN_TOKEN
+# ADMIN_TOKEN is stored as a secret, not in this file
+
+# Workers subdomain: offgrid-audio.workers.dev

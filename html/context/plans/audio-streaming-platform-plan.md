@@ -50,7 +50,7 @@ Potential Solution:
       - Set up R2 account with cloudflare 2026.04.22
         - account id: efb39a38ad5c29224095d417e889a83f
         - s3 api: https://efb39a38ad5c29224095d417e889a83f.r2.cloudflarestorage.com
-        - offgrid-dev
+        - bucket: offgrid-dev
       - Consider how to set up the bucket structure 
         - offgrid-dev
     - Use a simple JSON format to define mixes and playlists, which can be easily parsed by the frontend player component.

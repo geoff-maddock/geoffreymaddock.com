@@ -1,5 +1,9 @@
 .htaccess
 html/demo/*
+html/audio/.env.local
 html/audio/offline/*
 html/audio/mixes/*
+html/audio/worker/node_modules/
+html/audio/worker/.wrangler/
 html/work/*
+
