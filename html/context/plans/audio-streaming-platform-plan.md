@@ -73,3 +73,13 @@ Documentation:
 Automated Testing Criteria:
     - always include testing
  
+# Additional brainstorming
+- I would like to change the admin page so i don't have to provide the API and bucket information to log in.  I could have a config file that is read by the admin page and then use that to connect to the API and storage.  This would allow me to keep the API and bucket information hidden and only accessible to me.  I'd still like some form of auth on the admin page.  Maybe just an admin u/p for now.  In the future I'd like to convert it so that different users and log in, have their own page, and when uploads happen, it stores the user information with the mix.
+- On upload, instead of requiring a peaks file, have the backend process and create the peaks file and then store it in the same location as the audio file.  This would make it easier for users to upload mixes without needing to generate a peaks file themselves.  It would also allow me to control the format of the peaks file and ensure that it is consistent across all mixes.
+- An additional feature for each mix - allow relation to the storage of the tracklist.  This is often in the description, but I'd like it to be explicitly included, and processed like in my mix-extraction project.  This would split each track into artist, title and label, and allow for enrichment.  An additional mix-extraction step would then fill in missing data, and find paths to the artist and or label page, and direct links to bandcamp and or soundcloud.  I'd like to then automatically build the "buymusic.club" style page for each mix with links to each track and individual players.  This would allow users to check out my mixes and then easily go buy the tracks too.
+
+
+# Next steps:
+- Although I'd like to use this code code in a project like this, it seems like it would be better to move into it's own project that I can deploy seperately?
+- What would that look like?  A simple node server with a react frontend?  Or just a static site with a js player and then a separate admin interface?
+- I already have the player page and admin page in /audio in this project
