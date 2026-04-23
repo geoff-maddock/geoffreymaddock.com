@@ -202,7 +202,7 @@ function renderMixes() {
     <tr data-id="${esc(m.id)}">
       <td class="thumb-cell">
         ${m.thumb
-          ? `<img src="../${esc(m.thumb)}" alt="" onerror="this.parentElement.innerHTML='<div class=thumb-placeholder></div>'">`
+          ? `<img src="${m.thumb.startsWith('http') ? esc(m.thumb) : '../' + esc(m.thumb)}" alt="" onerror="this.parentElement.innerHTML='<div class=thumb-placeholder></div>'">`
           : '<div class="thumb-placeholder"></div>'}
       </td>
       <td>${esc(m.title)}</td>
