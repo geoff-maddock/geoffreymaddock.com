@@ -1,0 +1,15 @@
+{
+  "name": "cutups-api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create cutups-db",
+    "db:migrate": "wrangler d1 execute cutups-db --remote --file=migrations/001_init.sql",
+    "db:migrate:local": "wrangler d1 execute cutups-db --local --file=migrations/001_init.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^4.84.1"
+  }
+}

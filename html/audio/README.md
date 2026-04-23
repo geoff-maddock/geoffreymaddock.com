@@ -1,18 +1,28 @@
 # Cut Ups Audio Player
 
-Self-hosted, embeddable audio player built with Web Components and WaveSurfer.js. No ads, no accounts, no platform dependency.
+Self-hosted, embeddable audio player with admin interface, backed by Cloudflare Workers + D1 + R2. No ads, no accounts, no platform dependency.
+
+## Architecture
+
+```
+Player Page (index.html)           Admin UI (admin/)
+       │                                │
+       │ fetches                        │ reads/writes
+       ▼                                ▼
+  manifest.json ◄──── Publish ──── Cloudflare Worker API
+  (static, on R2)                       │
+                                        ├── D1 (SQLite database)
+                                        └── R2 (file storage)
+```
+
+- **Player page** reads a static `manifest.json` from R2 and renders players dynamically
+- **Admin UI** manages mixes/playlists via the Worker API (D1 database), uploads files to R2
+- **Publish** generates `manifest.json` from D1 and writes it to R2
+- **Web Components** (`<cutups-player>`, `<cutups-playlist>`) can be embedded on any page
 
 ## Quick Start
 
 ### 1. Include the script
-
-Add a single script tag to any HTML page:
-
-```html
-<script src="audio-player.js"></script>
-```
-
-Or use a full URL when embedding on external sites:
 
 ```html
 <script src="https://geoffreymaddock.com/audio/audio-player.js"></script>
@@ -22,16 +32,16 @@ Or use a full URL when embedding on external sites:
 
 ```html
 <cutups-player
-  src="my-mix.mp3"
+  src="https://your-r2-url.r2.dev/audio/mix.mp3"
   title="My Mix"
   artist="DJ Name"
   color="#ff5500"
-  thumb="cover.jpg"
-  peaks="my-mix.peaks.json">
+  thumb="https://your-r2-url.r2.dev/covers/cover.jpg"
+  peaks="https://your-r2-url.r2.dev/peaks/mix.peaks.json">
 </cutups-player>
 ```
 
-That's it. The player renders inside Shadow DOM, so host page styles won't interfere.
+The player renders inside Shadow DOM, so host page styles won't interfere.
 
 ## Components
 
@@ -46,19 +56,6 @@ That's it. The player renders inside Shadow DOM, so host page styles won't inter
 | `peaks`    | No       | URL to a pre-computed peaks JSON file (see [Peaks](#peaks)) |
 | `color`    | No       | Accent color as hex (default: `#ff5500`) |
 | `duration` | No       | Pre-known duration string, e.g. `"3:42"` |
-
-**Full example:**
-
-```html
-<cutups-player
-  src="https://cdn.example.com/bloodbath.mp3"
-  title="Bloodbath"
-  artist="Cut Ups"
-  thumb="https://cdn.example.com/bloodbath-cover.jpg"
-  peaks="https://cdn.example.com/bloodbath.peaks.json"
-  color="#ff5500">
-</cutups-player>
-```
 
 ### `<cutups-playlist>` -- Multiple Tracks
 
@@ -75,126 +72,8 @@ Tracks are defined as JSON inside a `<script type="application/json">` child ele
 <cutups-playlist color="#ff5500" artist="Cut Ups">
   <script type="application/json">
     [
-      {
-        "src": "track1.mp3",
-        "title": "Track One",
-        "artist": "Cut Ups",
-        "thumb": "track1-cover.jpg",
-        "peaks": "track1.peaks.json"
-      },
-      {
-        "src": "track2.mp3",
-        "title": "Track Two",
-        "peaks": "track2.peaks.json"
-      }
-    ]
-  </script>
-</cutups-playlist>
-```
-
-Each track object supports: `src` (required), `title`, `artist`, `thumb`, `peaks`.
-
-## Peaks
-
-Pre-computed waveform peaks let the player show an accurate waveform preview on page load without downloading the audio file. This is strongly recommended for large files (DJ mixes, podcasts, etc.).
-
-### How it works
-
-- On page load, each player fetches its small peaks JSON (~5-15KB) and draws a static waveform preview
-- Duration is shown immediately from the peaks data
-- No audio is downloaded until the user clicks play
-- With peaks, the player uses a streaming backend -- audio starts playing before the full file downloads
-
-Without peaks, the player shows a blank placeholder. Audio is still lazy-loaded on click, but the full file must be downloaded and decoded before the waveform appears.
-
-### Generating peaks
-
-A Node.js script is included. Requires `ffmpeg` and `ffprobe` on your PATH.
-
-```bash
-# Generate peaks for a single file
-node generate-peaks.js my-mix.mp3
-
-# Generate peaks for all MP3s in the audio directory
-node generate-peaks.js --all
-
-# Custom number of peak samples (default: 800)
-node generate-peaks.js my-mix.mp3 1200
-```
-
-Output files are named `<basename>.peaks.json` and placed alongside the source MP3.
-
-### Peaks JSON format
-
-```json
-{
-  "peaks": [0.042, 0.187, 0.534, 0.891, ...],
-  "duration": 5355.22
-}
-```
-
-- `peaks` -- Array of 800 normalized amplitude values (0 to 1)
-- `duration` -- Track length in seconds
-
-## Thumbnails
-
-The `thumb` attribute accepts any image URL. Images are displayed at 80x80px in the single player and 44x44px in the playlist track list, cropped to fill via `object-fit: cover`.
-
-Recommended specs:
-- Format: JPEG or WebP
-- Size: 200x200px or larger (will be scaled down)
-- Aspect ratio: Square works best, but any ratio is accepted
-
-```html
-<!-- Relative path -->
-<cutups-player src="mix.mp3" thumb="cover.jpg" ...></cutups-player>
-
-<!-- Full URL -->
-<cutups-player src="mix.mp3" thumb="https://cdn.example.com/cover.jpg" ...></cutups-player>
-```
-
-When no thumbnail is provided, a music note icon placeholder is shown.
-
-## Embedding on External Sites
-
-### Minimal embed (single track)
-
-```html
-<script src="https://geoffreymaddock.com/audio/audio-player.js"></script>
-
-<cutups-player
-  src="https://cdn.example.com/mix.mp3"
-  title="My Mix"
-  artist="DJ Name"
-  color="#ff5500">
-</cutups-player>
-```
-
-### With peaks and thumbnail
-
-```html
-<script src="https://geoffreymaddock.com/audio/audio-player.js"></script>
-
-<cutups-player
-  src="https://cdn.example.com/mix.mp3"
-  title="My Mix"
-  artist="DJ Name"
-  thumb="https://cdn.example.com/cover.jpg"
-  peaks="https://cdn.example.com/mix.peaks.json"
-  color="#ff5500">
-</cutups-player>
-```
-
-### Playlist embed
-
-```html
-<script src="https://geoffreymaddock.com/audio/audio-player.js"></script>
-
-<cutups-playlist color="#ff5500" artist="DJ Name">
-  <script type="application/json">
-    [
-      {"src": "https://cdn.example.com/track1.mp3", "title": "Track 1", "peaks": "https://cdn.example.com/track1.peaks.json"},
-      {"src": "https://cdn.example.com/track2.mp3", "title": "Track 2", "peaks": "https://cdn.example.com/track2.peaks.json"}
+      {"src": "track1.mp3", "title": "Track One", "thumb": "cover1.jpg", "peaks": "track1.peaks.json"},
+      {"src": "track2.mp3", "title": "Track Two", "peaks": "track2.peaks.json"}
     ]
   </script>
 </cutups-playlist>
@@ -202,7 +81,7 @@ When no thumbnail is provided, a music note icon placeholder is shown.
 
 ### Play-one-at-a-time
 
-If you have multiple players on a page, add this snippet to pause others when one starts playing:
+Pause other players when one starts playing:
 
 ```html
 <script>
@@ -214,9 +93,7 @@ If you have multiple players on a page, add this snippet to pause others when on
 </script>
 ```
 
-## JavaScript API
-
-Each `<cutups-player>` element exposes these methods:
+### JavaScript API
 
 | Method       | Description |
 |--------------|-------------|
@@ -225,44 +102,274 @@ Each `<cutups-player>` element exposes these methods:
 | `stop()`     | Stop and reset to beginning |
 | `isPlaying()`| Returns `true` if currently playing |
 
-### Events
-
-All events bubble and are `composed` (cross Shadow DOM boundaries).
-
 | Event         | Detail | Description |
 |---------------|--------|-------------|
 | `trackplay`   | `{src}` | Fired when playback starts |
 | `trackpause`  | --     | Fired when playback pauses |
-| `trackfinish`  | --     | Fired when track ends |
+| `trackfinish` | --     | Fired when track ends |
 
-## Local Development
+## Setup Guide
 
-The player cannot be loaded via `file://` due to CORS restrictions. Run a local server:
+### Prerequisites
+
+- Node.js 18+
+- `ffmpeg` and `ffprobe` on your PATH (for peaks generation)
+- A Cloudflare account
+
+### Step 1: Cloudflare R2 Bucket
+
+1. Go to [dash.cloudflare.com](https://dash.cloudflare.com) → R2 → **Create Bucket**
+2. Name it (e.g., `offgrid-dev`)
+3. Go to bucket **Settings** → enable **Public access**
+4. Copy the **Public bucket URL** (e.g., `https://pub-xxxxx.r2.dev`)
+5. Set up CORS for the bucket:
+
+```bash
+cd html/audio/worker
+npx wrangler r2 bucket cors set YOUR_BUCKET_NAME --file ./r2-cors.json
+```
+
+The `r2-cors.json` file allows GET, HEAD, and PUT from any origin.
+
+### Step 2: R2 API Token (for uploads)
+
+Required for uploading large files (>95MB) via presigned URLs:
+
+1. Go to [dash.cloudflare.com](https://dash.cloudflare.com) → R2 → **Manage R2 API Tokens**
+2. Click **Create API Token** (Account API Tokens)
+3. Permissions: **Object Read & Write**, Scope: your bucket
+4. Copy the **Access Key ID** and **Secret Access Key**
+
+### Step 3: Worker Setup
+
+```bash
+cd html/audio/worker
+npm install
+
+# Authenticate with Cloudflare
+npx wrangler login
+# If login hangs on WSL, use an API token instead:
+#   export CLOUDFLARE_API_TOKEN="your-token"
+#   (Create at https://dash.cloudflare.com/profile/api-tokens
+#    using the "Edit Cloudflare Workers" template)
+
+# Create D1 database
+npx wrangler d1 create cutups-db
+# Copy the database_id from the output and update wrangler.toml:
+#   [[d1_databases]]
+#   binding = "DB"
+#   database_name = "cutups-db"
+#   database_id = "YOUR_DATABASE_ID"
+
+# Apply database schema
+npx wrangler d1 execute cutups-db --remote --file=migrations/001_init.sql
+
+# Set secrets
+npx wrangler secret put ADMIN_TOKEN          # Choose your admin password
+npx wrangler secret put R2_ACCESS_KEY_ID     # From Step 2
+npx wrangler secret put R2_SECRET_ACCESS_KEY # From Step 2
+npx wrangler secret put CF_ACCOUNT_ID        # Your Cloudflare account ID
+
+# Deploy the Worker
+npx wrangler deploy
+```
+
+### Step 4: Seed Database (optional)
+
+If you have an existing `data/manifest.json`, seed D1 from it:
+
+```bash
+node scripts/seed-d1.js
+```
+
+### Step 5: Migrate Files to R2 (optional)
+
+Upload existing local audio files, covers, and peaks to R2:
+
+```bash
+# Preview what would be uploaded
+node scripts/migrate-to-r2.js --dry-run
+
+# Upload and update manifest with R2 URLs
+export R2_PUBLIC_URL="https://pub-xxxxx.r2.dev"
+node scripts/migrate-to-r2.js
+```
+
+### Step 6: Configure Player Page
+
+Update `MANIFEST_URL` in `index.html` to point to your R2 manifest:
+
+```javascript
+const MANIFEST_URL = 'https://pub-xxxxx.r2.dev/data/manifest.json';
+```
+
+## Admin UI
+
+The admin interface lives at `admin/index.html`. Run a local server to use it:
 
 ```bash
 cd html/audio
 python3 -m http.server 8080
-# Open http://localhost:8080
+# Open http://localhost:8080/admin/
+```
+
+### Login
+
+On the login screen, enter:
+- **Worker URL**: Your deployed Worker URL (e.g., `https://cutups-api.offgrid-audio.workers.dev`)
+- **R2 Public URL**: Your R2 public bucket URL (e.g., `https://pub-xxxxx.r2.dev`)
+- **Admin token**: The password you set with `wrangler secret put ADMIN_TOKEN`
+
+Or click **Use offline** to edit the local `manifest.json` without a backend.
+
+### Features
+
+- **Mixes**: Add, edit, delete mixes with metadata (title, artist, tags, color, etc.)
+- **File uploads**: Upload audio, cover art, and peaks files directly to R2
+- **Playlists**: Create playlists by selecting and ordering mixes
+- **Search & sort**: Filter mixes by title, artist, or tags
+- **Publish**: Generate `manifest.json` from D1 and write it to R2 (updates the player page)
+- **Import/Export**: Import or download `manifest.json` for backup
+
+### Workflow
+
+1. Add a mix in the admin — fill in metadata, upload files
+2. Generate peaks locally: `node generate-peaks.js mixes/your-mix.mp3`
+3. Upload the peaks JSON via the admin
+4. Click **Publish** to update the public player page
+
+## Peaks
+
+Pre-computed waveform peaks let the player show an accurate waveform on load without downloading the audio file. Strongly recommended for large files.
+
+### Generating peaks
+
+Requires `ffmpeg` and `ffprobe` on your PATH:
+
+```bash
+# Single file
+node generate-peaks.js mixes/my-mix.mp3
+
+# All MP3s in the audio directory
+node generate-peaks.js --all
+
+# Custom number of samples (default: 800)
+node generate-peaks.js mixes/my-mix.mp3 1200
+```
+
+Output: `<basename>.peaks.json` alongside the source file.
+
+### Peaks JSON format
+
+```json
+{
+  "peaks": [0.042, 0.187, 0.534, 0.891, ...],
+  "duration": 5355.22
+}
 ```
 
 ## File Structure
 
 ```
 html/audio/
-  audio-player.js                              # Web component source
-  index.html                                   # Demo page
-  generate-peaks.js                            # Peak generation script
-  *.mp3                                        # Audio files
-  *.peaks.json                                 # Pre-computed waveform data
-  *.jpg                                        # Thumbnail images
+  audio-player.js                  # Web component source (<cutups-player>, <cutups-playlist>)
+  index.html                       # Player page (loads manifest.json from R2)
+  generate-peaks.js                # Peak generation script (Node.js + ffmpeg)
+  data/
+    manifest.json                  # Local manifest (for dev/offline use)
+    schema.md                      # JSON format documentation
+  admin/
+    index.html                     # Admin SPA shell
+    admin.js                       # Admin logic (CRUD, uploads, auth)
+    admin.css                      # Admin styles (dark theme)
+  worker/
+    wrangler.toml                  # Cloudflare Worker config (R2 + D1 bindings)
+    package.json                   # Worker dependencies
+    r2-cors.json                   # R2 CORS configuration
+    src/
+      index.js                     # Worker entry point (routing, CORS)
+      auth.js                      # Bearer token authentication
+      r2.js                        # R2 operations (presigned URLs, upload, list, delete)
+      aws-sign.js                  # AWS Signature V4 for R2 presigned URLs
+      db.js                        # D1 query helpers + manifest generation
+      api/
+        mixes.js                   # Mix CRUD endpoints
+        playlists.js               # Playlist CRUD endpoints
+        manifest.js                # Manifest generation + publish to R2
+    migrations/
+      001_init.sql                 # D1 database schema
+  scripts/
+    migrate-to-r2.js               # One-time: upload local files to R2
+    seed-d1.js                     # One-time: seed D1 from manifest.json
+  mixes/                           # Local audio files (gitignored)
 ```
+
+## API Reference
+
+All endpoints require `Authorization: Bearer <token>` header.
+
+### R2 File Operations
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/presign` | Generate presigned PUT URL for large file uploads |
+| `POST` | `/upload` | Direct upload (files < 100MB, set `X-File-Key` header) |
+| `GET` | `/files?prefix=audio/` | List R2 objects |
+| `DELETE` | `/files/:key` | Delete R2 object |
+
+### Mix CRUD
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/mixes` | List all mixes (`?tag=`, `?artist=`, `?sort=`, `?dir=`) |
+| `GET` | `/api/mixes/:id` | Get single mix |
+| `POST` | `/api/mixes` | Create mix |
+| `PUT` | `/api/mixes/:id` | Update mix |
+| `DELETE` | `/api/mixes/:id` | Delete mix (also removes from playlists) |
+
+### Playlist CRUD
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/playlists` | List all playlists with resolved mixes |
+| `GET` | `/api/playlists/:id` | Get single playlist |
+| `POST` | `/api/playlists` | Create playlist |
+| `PUT` | `/api/playlists/:id` | Update playlist |
+| `DELETE` | `/api/playlists/:id` | Delete playlist |
+| `POST` | `/api/playlists/:id/mixes` | Add mix to playlist (`{"mixId": "..."}`) |
+| `DELETE` | `/api/playlists/:id/mixes/:mixId` | Remove mix from playlist |
+
+### Manifest
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/manifest` | Generate manifest JSON from D1 |
+| `POST` | `/api/manifest/publish` | Write manifest.json to R2 |
+
+## WSL Notes
+
+If developing on WSL:
+
+- **D1 local mode fails** due to a `workerd` memory allocation issue. Always use `--remote`:
+  ```bash
+  npx wrangler d1 execute cutups-db --remote --file=migrations/001_init.sql
+  ```
+- **R2 local mode fails** for the same reason. Always use `--remote`:
+  ```bash
+  npx wrangler r2 object put BUCKET/key --remote --file=./file
+  ```
+- **`wrangler login` may hang** if the OAuth redirect can't reach WSL. Use an API token:
+  ```bash
+  export CLOUDFLARE_API_TOKEN="your-token"
+  ```
 
 ## Dependencies
 
 - [WaveSurfer.js v7](https://wavesurfer.xyz) -- loaded from CDN on first use
 - [IBM Plex fonts](https://fonts.google.com/?query=IBM+Plex) -- loaded from Google Fonts
+- [Wrangler v4](https://developers.cloudflare.com/workers/wrangler/) -- for Worker/D1/R2 operations
 - `ffmpeg` / `ffprobe` -- required only for peak generation
 
-## Recommended Hosting
+## Cost
 
-[Cloudflare R2](https://developers.cloudflare.com/r2/) for audio files -- zero egress fees, HTTP Range request support, edge-cached via Cloudflare CDN. See the [project brief](../context/self-hosted-audio-streaming-platform.md) for setup instructions.
+With Cloudflare R2, storage costs ~$0.015/GB/month with **zero egress fees**. A library of 100 mixes at 200MB each (20GB) costs about $0.30/month regardless of how many times they're streamed.

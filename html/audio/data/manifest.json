@@ -1,0 +1,82 @@
+{
+  "site": {
+    "title": "The Mixes",
+    "tagline": "Self hosted embedded audio player for DJ mixes and playlists.",
+    "accent": "#ff5500"
+  },
+  "mixes": [
+    {
+      "id": "bloodbath",
+      "title": "Bloodbath",
+      "artist": "Cutups",
+      "description": "",
+      "src": "https://pub-ae4702a22ae04a4289e4fb95d6341a22.r2.dev/audio/cutups-bloodbath-final1.mp3",
+      "thumb": "https://pub-ae4702a22ae04a4289e4fb95d6341a22.r2.dev/covers/bloodbath-cover.jpg",
+      "peaks": "https://pub-ae4702a22ae04a4289e4fb95d6341a22.r2.dev/peaks/cutups-bloodbath-final1.peaks.json",
+      "color": "#ff5500",
+      "tags": [
+        "industrial",
+        "ebm",
+        "cyberpunk",
+        "hardwave"
+      ],
+      "duration": 5355.23,
+      "releaseDate": null
+    },
+    {
+      "id": "piano-smasher",
+      "title": "Piano Smasher",
+      "artist": "Cutups",
+      "description": "",
+      "src": "https://pub-ae4702a22ae04a4289e4fb95d6341a22.r2.dev/audio/cutups-hardcore-pianos-ultramix-320.mp3",
+      "thumb": "https://pub-ae4702a22ae04a4289e4fb95d6341a22.r2.dev/covers/future-cover.jpg",
+      "peaks": "https://pub-ae4702a22ae04a4289e4fb95d6341a22.r2.dev/peaks/cutups-hardcore-pianos-ultramix-320.peaks.json",
+      "color": "#ff3300",
+      "tags": [],
+      "duration": 3908.78,
+      "releaseDate": null
+    },
+    {
+      "id": "just-floating",
+      "title": "Just Floating",
+      "artist": "Cutups",
+      "description": "",
+      "src": "https://pub-ae4702a22ae04a4289e4fb95d6341a22.r2.dev/audio/Cutups-JustFloating-320.mp3",
+      "thumb": "https://pub-ae4702a22ae04a4289e4fb95d6341a22.r2.dev/covers/floating-cover.jpg",
+      "peaks": "https://pub-ae4702a22ae04a4289e4fb95d6341a22.r2.dev/peaks/Cutups-JustFloating-320.peaks.json",
+      "color": "#ff6600",
+      "tags": [],
+      "duration": 6573.32,
+      "releaseDate": null
+    },
+    {
+      "id": "ultrabeat",
+      "title": "Hardcore Jungle Ultrabeat",
+      "artist": "Cutups",
+      "description": "",
+      "src": "https://pub-ae4702a22ae04a4289e4fb95d6341a22.r2.dev/audio/cutups-ultrabeat-cleanest-normalized.mp3",
+      "thumb": "https://pub-ae4702a22ae04a4289e4fb95d6341a22.r2.dev/covers/ultrabeat-cover.jpg",
+      "peaks": "https://pub-ae4702a22ae04a4289e4fb95d6341a22.r2.dev/peaks/cutups-ultrabeat-cleanest-normalized.peaks.json",
+      "color": "#ff4400",
+      "tags": [],
+      "duration": 4449.46,
+      "releaseDate": null
+    }
+  ],
+  "playlists": [
+    {
+      "id": "all-mixes",
+      "title": "Full Playlist",
+      "description": "",
+      "creator": "Cutups",
+      "thumb": null,
+      "color": "#ff5500",
+      "mixIds": [
+        "bloodbath",
+        "piano-smasher",
+        "just-floating",
+        "ultrabeat"
+      ]
+    }
+  ]
+}

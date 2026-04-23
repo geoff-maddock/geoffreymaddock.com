@@ -114,70 +114,57 @@ Demo page showing both components in action. Dark, minimal aesthetic (IBM Plex f
 
 ---
 
-## 5. Deployment Checklist & Next Steps
+## 5. Deployment Checklist
 
 | Task | Status | Notes |
 |---|---|---|
 | `audio-player.js` web component | ✅ Done | `<cutups-player>` single track player |
 | Playlist web component | ✅ Done | `<cutups-playlist>` with autoplay + nav |
-| Demo page (`index.html`) | ✅ Done | Individual players + playlist + embed code |
-| Cloudflare R2 bucket setup | 🔜 Next | Create bucket, set public access |
-| Upload MP3 files to R2 | 🔜 Next | 4 mixes + any future uploads |
-| Deploy `index.html` to CF Pages | 🔜 Next | Connect R2 bucket as static origin |
-| Custom domain | 🔜 Next | Add domain in Cloudflare dashboard |
-| Thumbnail images | 🕐 Later | Upload art, add `thumb=` attribute to players |
+| Demo page (`index.html`) | ✅ Done | Manifest-driven, loads from R2 |
+| JSON data layer (`manifest.json`) | ✅ Done | Schema + dynamic rendering |
+| Admin interface | ✅ Done | CRUD, file uploads, publish to R2 |
+| Cloudflare R2 bucket setup | ✅ Done | `offgrid-dev` bucket with public access + CORS |
+| Upload files to R2 | ✅ Done | Via admin UI or `wrangler r2 object put --remote` |
+| Cloudflare Worker API | ✅ Done | `cutups-api.offgrid-audio.workers.dev` |
+| D1 database | ✅ Done | Schema applied, seeded from manifest |
+| Bearer token auth | ✅ Done | Worker secret + admin login flow |
+| Peaks generation | ✅ Done | `generate-peaks.js` (local, requires ffmpeg) |
+| Error state on failed audio | ✅ Done | Shows error UI instead of frozen spinner |
+| Custom domain | 🕐 Later | Add domain in Cloudflare dashboard |
 | Multi-bitrate transcoding | 🕐 Later | 320kbps desktop / 128kbps mobile |
 | URL signing / hotlink protection | 🕐 Later | CF Workers to sign R2 URLs |
 | Analytics | 🕐 Later | CF Web Analytics (free, no cookies) |
 
-### Cloudflare R2 Setup (15 mins)
+### Deployed Infrastructure
 
-```bash
-# 1. Log into dash.cloudflare.com → R2 → Create Bucket
-# 2. Enable public access on the bucket (or use a custom domain)
+| Component | URL |
+|---|---|
+| Worker API | `https://cutups-api.offgrid-audio.workers.dev` |
+| R2 Public Bucket | `https://pub-ae4702a22ae04a4289e4fb95d6341a22.r2.dev` |
+| R2 Bucket Name | `offgrid-dev` |
+| D1 Database | `cutups-db` |
 
-# 3. Upload MP3s via Wrangler CLI
-npx wrangler r2 object put my-bucket/track.mp3 --file track.mp3
+### Adding a New Mix (workflow)
 
-# 4. Deploy index.html to Cloudflare Pages
-#    Connect GitHub repo or drag-and-drop in the dashboard
-
-# 5. Update src= attributes in index.html to point to R2 public URLs
-```
-
-### Local Testing (Before R2)
-
-```bash
-# Run a local server from the folder containing index.html and your MP3s
-python3 -m http.server 8080
-
-# Then open http://localhost:8080
-# Relative src= paths will resolve correctly
-```
-
-### Known Issue — Error State
-
-If a player can't find its audio file (wrong path, missing file), the play button currently spins indefinitely with no visible error. **Fix pending:** add an explicit error state to the `_ws.on('error')` handler so failed loads show a clear UI indicator instead of a frozen spinner.
+1. Open admin at `http://localhost:8080/admin/` (run `python3 -m http.server 8080` from `html/audio/`)
+2. Log in with Worker URL, R2 URL, and admin token
+3. Click **+ Add Mix**, fill in metadata
+4. Upload audio file, cover art via the Upload buttons
+5. Generate peaks locally: `node generate-peaks.js mixes/your-mix.mp3`
+6. Upload the peaks JSON via the admin
+7. Save the mix
+8. Click **Publish** to update the public player page
 
 ### Optional Enhancements
 
 - **Hotlink protection** — Cloudflare Worker to sign R2 URLs with HMAC, short expiry
 - **Analytics** — Cloudflare Web Analytics (free, privacy-preserving, no cookies)
 - **Transcoding** — run `ffmpeg` on upload to generate 128kbps mobile variant alongside 320kbps
-- **Waveform pre-computation** — pre-generate WaveSurfer peak data JSON to speed up load time on long mixes
+- **Custom domain** — point a subdomain at the R2 bucket for cleaner URLs
 
 ---
 
-## 6. Known Issues
-
-| Issue | Impact | Fix |
-|---|---|---|
-| No error state on failed audio load | Spinner runs forever, player appears broken | Add UI feedback to `_ws.on('error')` handler |
-| Relative `src=` paths | Players fail unless files are co-located with HTML | Use full R2 URLs in production |
-
----
-
-## 7. Reference
+## 6. Reference
 
 | Resource | URL |
 |---|---|
@@ -186,7 +173,8 @@ If a player can't find its audio file (wrong path, missing file), the play butto
 | Cloudflare Pages | https://developers.cloudflare.com/pages/ |
 | R2 Cost Calculator | https://r2-calculator.cloudflare.com/ |
 | Web Components MDN | https://developer.mozilla.org/en-US/docs/Web/API/Web_components |
-| Wrangler CLI (R2 uploads) | https://developers.cloudflare.com/workers/wrangler/ |
+| Wrangler CLI | https://developers.cloudflare.com/workers/wrangler/ |
+| Cloudflare D1 | https://developers.cloudflare.com/d1/ |
 
 ---
 

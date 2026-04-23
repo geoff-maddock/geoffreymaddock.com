@@ -3,18 +3,19 @@
  * Uses WaveSurfer.js for waveform rendering & playback
  *
  * Attributes:
- *   src        — URL to audio file (required)
- *   title      — Track title
- *   artist     — Artist name
- *   thumb      — URL to thumbnail image
- *   color      — Waveform accent color (default: #ff5500)
- *   peaks      — URL to pre-computed peaks JSON ({peaks: number[], duration: number})
- *   duration   — Optional pre-known duration string (e.g. "3:42")
+ *   src         — URL to audio file (required)
+ *   title       — Track title
+ *   artist      — Artist name
+ *   thumb       — URL to thumbnail image
+ *   color       — Waveform accent color (default: #ff5500)
+ *   peaks       — URL to pre-computed peaks JSON ({peaks: number[], duration: number})
+ *   duration    — Optional pre-known duration string (e.g. "3:42")
+ *   description — Optional track description (shown via expandable "more" button)
  */
 
 class CutUpsPlayer extends HTMLElement {
   static get observedAttributes() {
-    return ['src', 'title', 'artist', 'thumb', 'color', 'duration', 'peaks'];
+    return ['src', 'title', 'artist', 'thumb', 'color', 'duration', 'peaks', 'description', 'tags'];
   }
 
   constructor() {
@@ -45,7 +46,7 @@ class CutUpsPlayer extends HTMLElement {
     if (name === 'src' && oldVal !== newVal && this._ws) {
       this._loadAudio();
     }
-    if (['title', 'artist', 'thumb'].includes(name)) {
+    if (['title', 'artist', 'thumb', 'description'].includes(name)) {
       this._updateMeta();
     }
   }
@@ -249,6 +250,40 @@ class CutUpsPlayer extends HTMLElement {
 
         .time-current { color: var(--text); }
 
+        /* Tags */
+        .tag-wrap {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+          padding: 6px 14px 8px;
+          align-items: center;
+        }
+
+        .tag-wrap:empty {
+          display: none;
+        }
+
+        .tag-pill {
+          display: inline-block;
+          background: rgba(255, 85, 0, 0.08);
+          border: 1px solid rgba(255, 85, 0, 0.15);
+          border-radius: 20px;
+          padding: 1px 8px;
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 9px;
+          letter-spacing: 0.03em;
+          color: color-mix(in srgb, var(--accent) 80%, white);
+          text-transform: lowercase;
+          line-height: 1.6;
+          cursor: pointer;
+          transition: background 0.15s, border-color 0.15s;
+        }
+
+        .tag-pill:hover {
+          background: rgba(255, 85, 0, 0.18);
+          border-color: rgba(255, 85, 0, 0.3);
+        }
+
         .play-btn-wrap {
           display: flex;
           align-items: center;
@@ -401,6 +436,107 @@ class CutUpsPlayer extends HTMLElement {
           border-color: #666;
         }
 
+        /* More / Description */
+        .more-btn {
+          background: none;
+          border: 1px solid #444;
+          border-radius: var(--radius);
+          color: var(--text-muted);
+          font-size: 11px;
+          font-family: 'IBM Plex Sans', sans-serif;
+          padding: 3px 8px;
+          cursor: pointer;
+          display: none;
+          align-items: center;
+          gap: 4px;
+          transition: color 0.15s, border-color 0.15s;
+        }
+
+        .more-btn:hover {
+          color: var(--text);
+          border-color: #666;
+        }
+
+        .more-btn .chevron {
+          transition: transform 0.2s ease;
+          display: inline-block;
+        }
+
+        .more-btn.open .chevron {
+          transform: rotate(180deg);
+        }
+
+        :host([has-description]) .more-btn {
+          display: inline-flex;
+        }
+
+        .desc-panel {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease, padding 0.3s ease;
+          padding: 0 14px;
+          position: relative;
+        }
+
+        .desc-panel.open {
+          max-height: var(--desc-max-h, 120px);
+          overflow-y: auto;
+          padding: 0 14px 0;
+        }
+
+        .desc-panel.open::-webkit-scrollbar {
+          width: 3px;
+        }
+        .desc-panel.open::-webkit-scrollbar-track { background: transparent; }
+        .desc-panel.open::-webkit-scrollbar-thumb {
+          background: #444;
+          border-radius: 2px;
+        }
+
+        .desc-text {
+          font-size: 13px;
+          line-height: 1.6;
+          color: var(--text-muted);
+          border-top: 1px solid #2a2a2a;
+          padding-top: 12px;
+          padding-bottom: 8px;
+          white-space: pre-wrap;
+          word-break: break-word;
+        }
+
+        .resize-handle {
+          display: none;
+          height: 14px;
+          cursor: ns-resize;
+          align-items: center;
+          justify-content: center;
+          user-select: none;
+          touch-action: none;
+          flex-shrink: 0;
+        }
+
+        .desc-panel.open ~ .resize-handle {
+          display: flex;
+        }
+
+        .resize-grip {
+          width: 32px;
+          height: 4px;
+          border-radius: 2px;
+          background: #444;
+          transition: background 0.15s, width 0.15s;
+        }
+
+        .resize-handle:hover .resize-grip {
+          background: var(--accent);
+          width: 48px;
+        }
+
+        .resize-handle.dragging .resize-grip {
+          background: var(--accent);
+          width: 48px;
+        }
+
         /* idle placeholder */
         .wave-placeholder {
           height: 64px;
@@ -529,6 +665,8 @@ class CutUpsPlayer extends HTMLElement {
           </div>
         </div>
 
+        <div class="tag-wrap" id="tag-wrap"></div>
+
         <div class="wave-row">
           <div class="wave-placeholder" id="shimmer">
             <div class="placeholder-label" id="shimmer-label"></div>
@@ -555,15 +693,37 @@ class CutUpsPlayer extends HTMLElement {
             </span>
             <input type="range" id="volume" min="0" max="1" step="0.01" value="0.8">
           </div>
-          <a class="download-btn" id="dl-btn" href="#" download>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-            </svg>
-            Download
-          </a>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="more-btn" id="more-btn">
+              More <span class="chevron">&#9662;</span>
+            </button>
+            <a class="download-btn" id="dl-btn" href="#" download>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+              </svg>
+              Download
+            </a>
+          </div>
+        </div>
+
+        <div class="desc-panel" id="desc-panel">
+          <div class="desc-text" id="desc-text"></div>
+        </div>
+        <div class="resize-handle" id="resize-handle">
+          <div class="resize-grip"></div>
         </div>
       </div>
     `;
+
+    // Set description if present
+    const desc = this.getAttribute('description') || '';
+    if (desc) {
+      this.setAttribute('has-description', '');
+      this.shadowRoot.querySelector('#desc-text').textContent = desc;
+    }
+
+    // Set tags if present
+    this._renderTags();
 
     this._bindStaticEvents();
   }
@@ -610,6 +770,50 @@ class CutUpsPlayer extends HTMLElement {
       dlBtn.href = src;
       dlBtn.setAttribute('download', src.split('/').pop() || 'track.mp3');
     }
+
+    // More / description toggle
+    const moreBtn = this.shadowRoot.querySelector('#more-btn');
+    const descPanel = this.shadowRoot.querySelector('#desc-panel');
+    moreBtn.addEventListener('click', () => {
+      const isOpen = descPanel.classList.toggle('open');
+      moreBtn.classList.toggle('open', isOpen);
+      if (isOpen) {
+        // Set initial max-height to fit content, capped at 120px
+        const scrollH = descPanel.scrollHeight;
+        descPanel.style.setProperty('--desc-max-h', Math.min(scrollH, 120) + 'px');
+      }
+    });
+
+    // Resize handle drag
+    const resizeHandle = this.shadowRoot.querySelector('#resize-handle');
+    let startY = 0;
+    let startH = 0;
+
+    const onPointerDown = (e) => {
+      if (!descPanel.classList.contains('open')) return;
+      e.preventDefault();
+      startY = e.clientY;
+      startH = descPanel.offsetHeight;
+      resizeHandle.classList.add('dragging');
+      descPanel.style.transition = 'none';
+      document.addEventListener('pointermove', onPointerMove);
+      document.addEventListener('pointerup', onPointerUp);
+    };
+
+    const onPointerMove = (e) => {
+      const delta = e.clientY - startY;
+      const newH = Math.max(60, startH + delta);
+      descPanel.style.setProperty('--desc-max-h', newH + 'px');
+    };
+
+    const onPointerUp = () => {
+      resizeHandle.classList.remove('dragging');
+      descPanel.style.transition = '';
+      document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerup', onPointerUp);
+    };
+
+    resizeHandle.addEventListener('pointerdown', onPointerDown);
   }
 
   // Called on first play click — initializes WaveSurfer and auto-plays when ready
@@ -844,6 +1048,43 @@ class CutUpsPlayer extends HTMLElement {
     if (thumbWrap && thumb) {
       thumbWrap.innerHTML = `<img src="${thumb}" alt="thumbnail" class="thumb-img">`;
     }
+
+    const desc = this.getAttribute('description') || '';
+    const descText = this.shadowRoot.querySelector('#desc-text');
+    if (descText) descText.textContent = desc;
+    if (desc) {
+      this.setAttribute('has-description', '');
+    } else {
+      this.removeAttribute('has-description');
+    }
+
+    this._renderTags();
+  }
+
+  _renderTags() {
+    const tagWrap = this.shadowRoot.querySelector('#tag-wrap');
+    if (!tagWrap) return;
+
+    const tagsAttr = this.getAttribute('tags') || '';
+    let tags = [];
+    try {
+      tags = JSON.parse(tagsAttr);
+    } catch {
+      tags = tagsAttr ? tagsAttr.split(',').map(t => t.trim()).filter(Boolean) : [];
+    }
+
+    tagWrap.innerHTML = tags.map(t =>
+      `<span class="tag-pill">${t}</span>`
+    ).join('');
+
+    tagWrap.querySelectorAll('.tag-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        this.dispatchEvent(new CustomEvent('tagclick', {
+          bubbles: true, composed: true,
+          detail: { tag: pill.textContent }
+        }));
+      });
+    });
   }
 
   // Public API
