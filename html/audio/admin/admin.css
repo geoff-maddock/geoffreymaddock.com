@@ -480,19 +480,23 @@ html, body {
   list-style: none;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  max-height: 240px;
+  max-height: 320px;
   overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg);
 }
 
 .playlist-mix-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 8px 12px;
   border-bottom: 1px solid #222;
   font-size: 13px;
-  cursor: pointer;
-  transition: background 0.1s;
+  color: var(--text);
+  transition: background 0.1s, opacity 0.15s, transform 0.15s;
+  position: relative;
+  overflow: hidden;
 }
 
 .playlist-mix-item:last-child {
@@ -505,14 +509,66 @@ html, body {
 
 .playlist-mix-item input[type="checkbox"] {
   accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin: 0;
 }
 
 .playlist-mix-item .mix-num {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
   color: var(--text-muted);
-  width: 20px;
+  width: 18px;
   text-align: right;
+  flex-shrink: 0;
+}
+
+.playlist-mix-item .mix-label {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  color: #f0f0f0;
+  font-size: 13px;
+}
+
+.playlist-mix-item .drag-handle {
+  display: flex;
+  align-items: center;
+  cursor: grab;
+  color: #444;
+  padding: 4px 2px;
+  flex-shrink: 0;
+  transition: color 0.15s;
+  touch-action: none;
+}
+
+.playlist-mix-item .drag-handle:hover {
+  color: var(--accent);
+}
+
+.playlist-mix-item .drag-handle:active {
+  cursor: grabbing;
+}
+
+.playlist-mix-item.dragging {
+  opacity: 0.9;
+  background: var(--bg3);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.playlist-mix-placeholder {
+  background: rgba(255, 85, 0, 0.08);
+  border: 1px dashed rgba(255, 85, 0, 0.3);
+  border-radius: var(--radius);
+  list-style: none;
 }
 
 /* Toast */

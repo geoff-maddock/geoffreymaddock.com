@@ -442,12 +442,14 @@ function openPlaylistModal(playlist) {
 
   list.innerHTML = ordered.map((m, i) => `
     <li class="playlist-mix-item" data-mix-id="${esc(m.id)}">
-      <span class="mix-num">${i + 1}</span>
+      <span class="drag-handle" title="Drag to reorder"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="4" height="2" rx="0.5"/><rect x="9" y="2" width="4" height="2" rx="0.5"/><rect x="3" y="7" width="4" height="2" rx="0.5"/><rect x="9" y="7" width="4" height="2" rx="0.5"/><rect x="3" y="12" width="4" height="2" rx="0.5"/><rect x="9" y="12" width="4" height="2" rx="0.5"/></svg></span>
       <input type="checkbox" ${selectedIds.includes(m.id) ? 'checked' : ''}>
-      <span>${esc(m.title)} ${m.artist ? '— ' + esc(m.artist) : ''}</span>
+      <span class="mix-num">${i + 1}.</span>
+      <span class="mix-label">${esc(m.title)}${m.artist ? ' — ' + esc(m.artist) : ''}</span>
     </li>
   `).join('');
 
+  initPlaylistDragDrop(list);
   modal.classList.add('open');
 }
 
@@ -543,6 +545,104 @@ window.deletePlaylist = function(id) {
     toast('Playlist deleted.');
   });
 };
+
+// ── Playlist Drag & Drop Reorder ───────────────────────────────────
+function initPlaylistDragDrop(list) {
+  let dragItem = null;
+  let placeholder = null;
+  let startY = 0;
+  let offsetY = 0;
+
+  list.querySelectorAll('.drag-handle').forEach(handle => {
+    handle.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      const item = handle.closest('.playlist-mix-item');
+      if (!item) return;
+
+      dragItem = item;
+      startY = e.clientY;
+      const rect = item.getBoundingClientRect();
+      offsetY = e.clientY - rect.top;
+
+      // Create placeholder
+      placeholder = document.createElement('li');
+      placeholder.className = 'playlist-mix-placeholder';
+      placeholder.style.height = rect.height + 'px';
+      item.parentNode.insertBefore(placeholder, item);
+
+      // Make item float
+      dragItem.classList.add('dragging');
+      dragItem.style.position = 'fixed';
+      dragItem.style.left = rect.left + 'px';
+      dragItem.style.top = rect.top + 'px';
+      dragItem.style.width = rect.width + 'px';
+      dragItem.style.zIndex = '10';
+
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onUp);
+    });
+  });
+
+  function onMove(e) {
+    if (!dragItem || !placeholder) return;
+
+    // Move the dragged item
+    dragItem.style.top = (e.clientY - offsetY) + 'px';
+
+    // Find which item we're hovering over
+    const items = [...list.querySelectorAll('.playlist-mix-item:not(.dragging)')];
+    for (const item of items) {
+      const rect = item.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      if (e.clientY < midY) {
+        list.insertBefore(placeholder, item);
+        return;
+      }
+    }
+    // Past all items — put at end
+    list.appendChild(placeholder);
+  }
+
+  function onUp() {
+    if (!dragItem || !placeholder) return;
+
+    // Insert the real item where the placeholder is
+    list.insertBefore(dragItem, placeholder);
+    placeholder.remove();
+    placeholder = null;
+
+    // Reset styles
+    dragItem.classList.remove('dragging');
+    dragItem.style.position = '';
+    dragItem.style.left = '';
+    dragItem.style.top = '';
+    dragItem.style.width = '';
+    dragItem.style.zIndex = '';
+    dragItem = null;
+
+    renumberPlaylistItems(list);
+
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+  }
+
+  // Clicking the label/checkbox area toggles the checkbox
+  list.addEventListener('click', (e) => {
+    const item = e.target.closest('.playlist-mix-item');
+    if (!item || e.target.closest('.drag-handle')) return;
+    if (e.target.tagName !== 'INPUT') {
+      const cb = item.querySelector('input[type="checkbox"]');
+      if (cb) cb.checked = !cb.checked;
+    }
+  });
+}
+
+function renumberPlaylistItems(list) {
+  list.querySelectorAll('.playlist-mix-item').forEach((item, i) => {
+    const num = item.querySelector('.mix-num');
+    if (num) num.textContent = (i + 1) + '.';
+  });
+}
 
 // ── Import / Export ────────────────────────────────────────────────
 function exportManifest() {
