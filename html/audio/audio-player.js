@@ -537,6 +537,78 @@ class CutUpsPlayer extends HTMLElement {
           width: 48px;
         }
 
+        /* Embed button & panel */
+        .embed-btn {
+          background: none;
+          border: 1px solid #444;
+          border-radius: var(--radius);
+          color: var(--text-muted);
+          font-size: 11px;
+          font-family: 'IBM Plex Sans', sans-serif;
+          padding: 3px 8px;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          transition: color 0.15s, border-color 0.15s;
+        }
+
+        .embed-btn:hover {
+          color: var(--text);
+          border-color: #666;
+        }
+
+        .embed-panel {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease, padding 0.3s ease;
+          padding: 0 14px;
+        }
+
+        .embed-panel.open {
+          max-height: 200px;
+          padding: 10px 14px;
+        }
+
+        .embed-code {
+          background: #111;
+          border: 1px solid #333;
+          border-radius: var(--radius);
+          padding: 10px 12px;
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 11px;
+          color: #ccc;
+          line-height: 1.5;
+          white-space: pre-wrap;
+          word-break: break-all;
+          position: relative;
+        }
+
+        .embed-copy-btn {
+          position: absolute;
+          top: 6px;
+          right: 6px;
+          background: #333;
+          border: 1px solid #555;
+          border-radius: 3px;
+          color: var(--text-muted);
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 10px;
+          padding: 2px 6px;
+          cursor: pointer;
+          transition: color 0.15s, background 0.15s;
+        }
+
+        .embed-copy-btn:hover {
+          background: #444;
+          color: var(--text);
+        }
+
+        .embed-copy-btn.copied {
+          color: #88dd88;
+          border-color: #88dd88;
+        }
+
         /* idle placeholder */
         .wave-placeholder {
           height: 64px;
@@ -697,6 +769,12 @@ class CutUpsPlayer extends HTMLElement {
             <button class="more-btn" id="more-btn">
               More <span class="chevron">&#9662;</span>
             </button>
+            <button class="embed-btn" id="embed-btn">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0L19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+              </svg>
+              Embed
+            </button>
             <a class="download-btn" id="dl-btn" href="#" download>
               <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
@@ -711,6 +789,10 @@ class CutUpsPlayer extends HTMLElement {
         </div>
         <div class="resize-handle" id="resize-handle">
           <div class="resize-grip"></div>
+        </div>
+
+        <div class="embed-panel" id="embed-panel">
+          <div class="embed-code" id="embed-code"><button class="embed-copy-btn" id="embed-copy-btn">Copy</button></div>
         </div>
       </div>
     `;
@@ -814,6 +896,33 @@ class CutUpsPlayer extends HTMLElement {
     };
 
     resizeHandle.addEventListener('pointerdown', onPointerDown);
+
+    // Embed button
+    const embedBtn = this.shadowRoot.querySelector('#embed-btn');
+    const embedPanel = this.shadowRoot.querySelector('#embed-panel');
+    const embedCode = this.shadowRoot.querySelector('#embed-code');
+    const embedCopyBtn = this.shadowRoot.querySelector('#embed-copy-btn');
+
+    embedBtn.addEventListener('click', () => {
+      const isOpen = embedPanel.classList.toggle('open');
+      if (isOpen) {
+        const code = this._generateEmbedCode();
+        embedCode.textContent = code;
+        embedCode.appendChild(embedCopyBtn);
+      }
+    });
+
+    embedCopyBtn.addEventListener('click', () => {
+      const code = this._generateEmbedCode();
+      navigator.clipboard.writeText(code).then(() => {
+        embedCopyBtn.textContent = 'Copied!';
+        embedCopyBtn.classList.add('copied');
+        setTimeout(() => {
+          embedCopyBtn.textContent = 'Copy';
+          embedCopyBtn.classList.remove('copied');
+        }, 2000);
+      });
+    });
   }
 
   // Called on first play click — initializes WaveSurfer and auto-plays when ready
@@ -1085,6 +1194,27 @@ class CutUpsPlayer extends HTMLElement {
         }));
       });
     });
+  }
+
+  _generateEmbedCode() {
+    const src = this.getAttribute('src') || '';
+    const title = this.getAttribute('title') || '';
+    const artist = this.getAttribute('artist') || '';
+    const thumb = this.getAttribute('thumb') || '';
+    const peaks = this.getAttribute('peaks') || '';
+    const color = this.getAttribute('color') || '';
+    const description = this.getAttribute('description') || '';
+
+    let attrs = '';
+    if (src) attrs += `\n  src="${src}"`;
+    if (title) attrs += `\n  title="${title}"`;
+    if (artist) attrs += `\n  artist="${artist}"`;
+    if (thumb) attrs += `\n  thumb="${thumb}"`;
+    if (peaks) attrs += `\n  peaks="${peaks}"`;
+    if (color) attrs += `\n  color="${color}"`;
+    if (description) attrs += `\n  description="${description}"`;
+
+    return `<script src="https://geoffreymaddock.com/audio/audio-player.js"><\/script>\n\n<cutups-player${attrs}>\n</cutups-player>`;
   }
 
   // Public API
